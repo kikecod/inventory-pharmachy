@@ -1,34 +1,29 @@
 package com.example.inventorypharmacy.config;
 
-
-
 import com.example.inventorypharmacy.security.JwtFilter;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.inventorypharmacy.security.CustomUserDetailsService;
 import org.springframework.context.annotation.*;
 import org.springframework.security.authentication.*;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.*;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.*;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.bcrypt.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.*;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.stereotype.Component;
-import org.springframework.web.filter.OncePerRequestFilter;
 
 @Configuration
 public class SecurityConfig {
 
-    @Autowired
-    private JwtFilter jwtFilter;
+    private final JwtFilter jwtFilter;
+
+    public SecurityConfig(JwtFilter jwtFilter) {
+        this.jwtFilter = jwtFilter;
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        boolean modoDesarrollo = true;
+        boolean modoDesarrollo = true; // cambia según tu entorno
 
         if (modoDesarrollo) {
             http.csrf(csrf -> csrf.disable())
@@ -37,11 +32,11 @@ public class SecurityConfig {
             http.csrf(csrf -> csrf.disable())
                     .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                     .authorizeHttpRequests(auth -> auth
-                            .requestMatchers("/api/auth/**").permitAll()
-                            .requestMatchers("/api/productos/**").hasAnyAuthority("ADMINISTRADOR", "GERENTE", "VENDEDOR")
-                            .requestMatchers("/api/facturas/**").hasAnyAuthority("ADMINISTRADOR", "GERENTE")
-                            .requestMatchers("/api/clientes/**").hasAnyAuthority("ADMINISTRADOR", "GERENTE", "VENDEDOR")
-                            .requestMatchers("/api/usuarios/**").hasAuthority("ADMINISTRADOR")
+                            .requestMatchers("/auth/**").permitAll()
+                            .requestMatchers("/api/productos/**").hasAnyAuthority("Administrador", "Gerente", "Cajero")
+                            .requestMatchers("/api/facturas/**").hasAnyAuthority("Administrador", "Gerente")
+                            .requestMatchers("/api/clientes/**").hasAnyAuthority("Administrador", "Gerente", "Cajero")
+                            .requestMatchers("/api/usuarios/**").hasAuthority("Administrador")
                             .anyRequest().authenticated()
                     )
                     .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
@@ -49,8 +44,15 @@ public class SecurityConfig {
 
         return http.build();
     }
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
+            throws Exception {
+        return config.getAuthenticationManager();
     }
 }
