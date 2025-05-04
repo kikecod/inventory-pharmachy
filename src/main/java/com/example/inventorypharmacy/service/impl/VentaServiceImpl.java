@@ -1,7 +1,5 @@
 package com.example.inventorypharmacy.service.impl;
 
-
-
 import com.example.inventorypharmacy.dto.VentaDTO;
 import com.example.inventorypharmacy.model.*;
 import com.example.inventorypharmacy.repository.*;
@@ -9,7 +7,9 @@ import com.example.inventorypharmacy.service.VentaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class VentaServiceImpl implements VentaService {
@@ -23,13 +23,15 @@ public class VentaServiceImpl implements VentaService {
     @Autowired
     private UsuarioRepository usuarioRepo;
 
+    @Autowired
+    private ProductoRepository productoRepository;
+
     private VentaDTO toDTO(Venta v) {
         return new VentaDTO(
                 v.getIdVenta(), v.getFecha(), v.getTotal(),
                 v.getTipoVenta(),
                 v.getCliente() != null ? v.getCliente().getIdCliente() : null,
-                v.getUsuario().getIdUsuario()
-        );
+                v.getUsuario().getIdUsuario());
     }
 
     private Venta toEntity(VentaDTO dto) {
@@ -64,4 +66,61 @@ public class VentaServiceImpl implements VentaService {
     public void eliminar(Long id) {
         ventaRepo.deleteById(id);
     }
+
+    @Override
+    public List<VentaDTO> obtenerReporteDiario() {
+        LocalDate hoy = LocalDate.now();
+        return listarTodas().stream()
+                .filter(venta -> venta.getFecha().isEqual(hoy))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<VentaDTO> obtenerReporteMensual() {
+        LocalDate hoy = LocalDate.now();
+        return listarTodas().stream()
+                .filter(venta -> venta.getFecha().getMonth() == hoy.getMonth() &&
+                        venta.getFecha().getYear() == hoy.getYear())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<VentaDTO> obtenerReporteAnual() {
+        int anioActual = LocalDate.now().getYear();
+        return listarTodas().stream()
+                .filter(venta -> venta.getFecha().getYear() == anioActual)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Map<String, Integer> obtenerStockPorCategoria() {
+        // Lógica para convertir List<Map<String, Object>> a Map<String, Integer>
+        List<Map<String, Object>> resultados = productoRepository.obtenerStockPorCategoria();
+        return resultados.stream().collect(Collectors.toMap(
+                r -> (String) r.get("categoria"), // Clave: nombre de la categoría
+                r -> ((Number) r.get("totalStock")).intValue() // Valor: total de stock convertido a Integer
+        ));
+    }
+
+    @Override
+    public double obtenerTotalVentas() {
+        return listarTodas().stream()
+                .mapToDouble(VentaDTO::getTotal)
+                .sum();
+    }
+
+    @Override
+public List<Map<String, Object>> obtenerProductosConStockBajo(int limiteStock) {
+    // Lógica para obtener productos con stock menor al límite
+    return productoRepository.findAll().stream()
+            .filter(producto -> producto.getStock() < limiteStock)
+            .map(producto -> {
+                Map<String, Object> productoMap = new HashMap<>();
+                productoMap.put("idProducto", producto.getIdProducto());
+                productoMap.put("nombre", producto.getNombre());
+                productoMap.put("stock", producto.getStock());
+                return productoMap;
+            })
+            .collect(Collectors.toList());
+}
 }
