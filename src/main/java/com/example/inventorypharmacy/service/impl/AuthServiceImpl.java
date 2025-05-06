@@ -32,27 +32,49 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponse login(LoginRequest request) {
+        // 1. Autenticar al usuario
         authManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
-        Usuario usuario = usuarioRepository.findByEmail(request.getEmail()).get();
+
+        // 2. Obtener el usuario desde la DB
+        Usuario usuario = usuarioRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        // 3. Generar el token JWT
         String token = jwtService.generateToken(usuario.getEmail());
-        return new AuthResponse(token);
+
+        // 4. Construir la respuesta con el token + datos del usuario
+        return AuthResponse.builder()
+                .token(token)
+                .usuario(UsuarioResponseDTO.builder()
+                        .id(usuario.getIdUsuario())
+                        .nombre(usuario.getNombre())
+                        .apellido(usuario.getApellido())
+                        .email(usuario.getEmail())
+                        .rol(usuario.getRol().getNombre())  // Asume que Rol tiene un campo "nombre"
+                        .build())
+                .build();
     }
 
     @Override
     public AuthResponse register(RegisterRequest request) {
-        System.out.println("Request recibido: " + request);
-        System.out.println("Rol recibido: " + request.getRol());
-        if (request.getNombre() == null || request.getApellido() == null || request.getEmail() == null || request.getPassword() == null) {
+        // 1. Validar campos obligatorios
+        if (request.getNombre() == null || request.getApellido() == null ||
+                request.getEmail() == null || request.getPassword() == null) {
             throw new RuntimeException("Todos los campos son obligatorios");
         }
+
+        // 2. Verificar si el email ya existe
         if (usuarioRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new RuntimeException("El email ya está en uso");
         }
+
+        // 3. Obtener el rol desde la DB
         Rol rol = rolRepository.findByNombre(request.getRol())
                 .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
 
+        // 4. Crear y guardar el nuevo usuario
         Usuario usuario = new Usuario();
         usuario.setNombre(request.getNombre());
         usuario.setApellido(request.getApellido());
@@ -60,9 +82,22 @@ public class AuthServiceImpl implements AuthService {
         usuario.setPassword(passwordEncoder.encode(request.getPassword()));
         usuario.setRol(rol);
         usuario.setFechaCreacion(LocalDate.now().toString());
+
         usuarioRepository.save(usuario);
 
+        // 5. Generar el token JWT
         String token = jwtService.generateToken(usuario.getEmail());
-        return new AuthResponse(token);
+
+        // 6. Devolver respuesta con token + datos del usuario
+        return AuthResponse.builder()
+                .token(token)
+                .usuario(UsuarioResponseDTO.builder()
+                        .id(usuario.getIdUsuario())
+                        .nombre(usuario.getNombre())
+                        .apellido(usuario.getApellido())
+                        .email(usuario.getEmail())
+                        .rol(usuario.getRol().getNombre())
+                        .build())
+                .build();
     }
 }

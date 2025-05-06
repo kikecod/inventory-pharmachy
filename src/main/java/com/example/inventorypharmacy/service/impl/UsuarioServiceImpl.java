@@ -24,12 +24,25 @@ public class UsuarioServiceImpl implements UsuarioService {
     private UsuarioRepository usuarioRepository;
 
     private UsuarioDTO toDTO(Usuario u) {
-        return new UsuarioDTO(u.getIdUsuario(), u.getNombre(), u.getApellido(), u.getEmail(), u.getPassword(), u.getRol().getId(), u.getFechaCreacion());
+        return new UsuarioDTO(
+                u.getIdUsuario(),
+                u.getNombre(),
+                u.getApellido(),
+                u.getEmail(),
+                u.getPassword(),
+                u.getRol().getId(),
+                u.getFechaCreacion());
     }
 
     private Usuario toEntity(UsuarioDTO dto) {
         Rol rol = rolRepo.findById(dto.getIdRol()).orElseThrow();
-        return new Usuario(dto.getIdUsuario(), dto.getNombre(), dto.getApellido(), dto.getEmail(), dto.getPassword(), rol, dto.getFechaCreacion());
+        return new Usuario(dto.getIdUsuario(),
+                dto.getNombre(),
+                dto.getApellido(),
+                dto.getEmail(),
+                dto.getPassword(),
+                rol,
+                dto.getFechaCreacion());
     }
 
     @Override

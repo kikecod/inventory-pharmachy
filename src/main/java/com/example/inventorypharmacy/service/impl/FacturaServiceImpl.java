@@ -91,6 +91,7 @@ public class FacturaServiceImpl implements FacturaService {
             document.add(new Paragraph("RFC: " + factura.getRfcCliente()));
             document.add(new Paragraph("Dirección Fiscal: " + factura.getDireccionFiscal()));
             document.add(new Paragraph("Fecha de Emisión: " + factura.getFechaEmision()));
+            document.add(new Paragraph("Sucursal: " + factura.getSucursal().getIdSucursal()));
 
         } catch (DocumentException e) {
             e.printStackTrace();

@@ -28,6 +28,7 @@ public class Usuario {
     private Rol rol;
 
 
+
     private String fechaCreacion;
 
 
