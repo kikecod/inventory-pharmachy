@@ -27,4 +27,7 @@ public class Factura {
     private String direccionFiscal;
 
     private LocalDate fechaEmision;
+    @ManyToOne
+    @JoinColumn(name = "id_sucursal")
+    private Sucursal sucursal;
 }

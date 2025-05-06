@@ -32,7 +32,8 @@ public class FacturaServiceImpl implements FacturaService {
                 f.getRfcCliente(),
                 f.getRazonSocial(),
                 f.getDireccionFiscal(),
-                f.getFechaEmision());
+                f.getFechaEmision(),
+                f.getSucursal().getIdSucursal());
     }
 
     private Factura toEntity(FacturaDTO dto) {
@@ -43,6 +44,7 @@ public class FacturaServiceImpl implements FacturaService {
         f.setRazonSocial(dto.getRazonSocial());
         f.setDireccionFiscal(dto.getDireccionFiscal());
         f.setFechaEmision(dto.getFechaEmision());
+        f.getSucursal().setIdSucursal(dto.getIdSucursal());
         return f;
     }
 
