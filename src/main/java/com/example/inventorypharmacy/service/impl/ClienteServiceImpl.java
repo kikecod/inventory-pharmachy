@@ -18,11 +18,11 @@ public class ClienteServiceImpl implements ClienteService {
     private ClienteRepository repo;
 
     private ClienteDTO toDTO(Cliente c) {
-        return new ClienteDTO(c.getIdCliente(), c.getNombre(), c.getApellido(), c.getEmail(), c.getTelefono(),  c.getDireccion());
+        return new ClienteDTO(c.getIdCliente(), c.getCi(), c.getNombre(), c.getApellido(), c.getEmail(), c.getTelefono(),  c.getDireccion());
     }
 
     private Cliente toEntity(ClienteDTO dto) {
-        return new Cliente(dto.getIdCliente(), dto.getNombre(), dto.getApellido(),  dto.getEmail(), dto.getTelefono(), dto.getDireccion());
+        return new Cliente(dto.getIdCliente(), dto.getCi(), dto.getNombre(), dto.getApellido(),  dto.getEmail(), dto.getTelefono(), dto.getDireccion());
     }
 
     @Override
