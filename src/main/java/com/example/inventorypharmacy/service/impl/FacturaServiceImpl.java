@@ -116,9 +116,7 @@ public class FacturaServiceImpl implements FacturaService {
 
         // Buscar o crear factura
         Factura factura = facturaRepo.findByVenta(venta).orElseGet(() -> {
-            Sucursal sucursal = ventaSucursalRepo.findByVenta(venta)
-                    .orElseThrow(() -> new RuntimeException("Sucursal no encontrada"))
-                    .getSucursal();
+
 
             Factura nueva = new Factura();
             nueva.setVenta(venta);
@@ -126,7 +124,6 @@ public class FacturaServiceImpl implements FacturaService {
             nueva.setRazonSocial(venta.getCliente().getNombre() + " " + venta.getCliente().getApellido());
             nueva.setDireccionFiscal(venta.getCliente().getDireccion());
             nueva.setFechaEmision(LocalDate.now());
-            nueva.setSucursal(sucursal);
             return facturaRepo.save(nueva);
         });
 
@@ -145,7 +142,6 @@ public class FacturaServiceImpl implements FacturaService {
             document.add(new Paragraph("RFC: " + factura.getRfcCliente()));
             document.add(new Paragraph("Dirección Fiscal: " + factura.getDireccionFiscal()));
             document.add(new Paragraph("Fecha de Emisión: " + factura.getFechaEmision()));
-            document.add(new Paragraph("Sucursal ID: " + factura.getSucursal().getIdSucursal()));
             document.add(new Paragraph(" "));
             document.add(new Paragraph("Detalle de productos:"));
             document.add(new Paragraph("-----------------------------"));
