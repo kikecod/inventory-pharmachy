@@ -1,4 +1,5 @@
 package com.example.inventorypharmacy.model;
+
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDate;
@@ -15,14 +16,22 @@ public class Lote {
     private Long idLote;
 
     @ManyToOne
-    @JoinColumn(name = "id_producto")
+    @JoinColumn(name = "id_producto", nullable = false)
     private Producto producto;
 
-    private String codigo_lote;
+    private String codigoLote;
 
-    private LocalDate fecha_vencimiento;
+    private LocalDate fechaVencimiento;
 
     private Integer cantidad;
 
-    private LocalDate fecha_ingreso;
+    private LocalDate fechaIngreso;
+
+    private Double precioUnitario; // 👈 necesario para "valor inventario" y frontend
+
+    private String notas; // 👈 opcional: para referencias
+
+    @ManyToOne
+    @JoinColumn(name = "id_sucursal", nullable = false)
+    private Sucursal sucursal;//👈 para registrar la sucursal a la que llega el lote
 }
