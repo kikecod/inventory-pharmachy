@@ -72,4 +72,40 @@ public class UsuarioServiceImpl implements UsuarioService {
         usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
         return usuarioRepository.save(usuario);
     }
+    @Override
+    public UsuarioDTO obtenerPerfil(String email) {
+        Usuario usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        return mapToDTO(usuario);
+    }
+
+    @Override
+    public UsuarioDTO actualizarPerfil(UsuarioDTO usuarioDTO, String email) {
+        Usuario usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        usuario.setNombre(usuarioDTO.getNombre());
+        usuario.setApellido(usuarioDTO.getApellido());
+        usuario.setEmail(usuarioDTO.getEmail());
+        // Aquí podrías añadir lógica para actualizar la contraseña si es necesario
+        // usuario.setPassword(usuarioDTO.getPassword());
+
+        usuarioRepository.save(usuario);
+
+        return mapToDTO(usuario);
+    }
+
+    // Mapea el modelo de usuario a usuarioDTO
+    private UsuarioDTO mapToDTO(Usuario usuario) {
+        return new UsuarioDTO(
+                usuario.getIdUsuario(),
+                usuario.getNombre(),
+                usuario.getApellido(),
+                usuario.getEmail(),
+                usuario.getPassword(),
+                usuario.getRol().getId(),
+                usuario.getFechaCreacion()
+        );
+    }
 }

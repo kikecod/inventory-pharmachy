@@ -29,4 +29,6 @@ public class Venta {
     @ManyToOne
     @JoinColumn(name = "id_usuario")
     private Usuario usuario;
+
+    
 }

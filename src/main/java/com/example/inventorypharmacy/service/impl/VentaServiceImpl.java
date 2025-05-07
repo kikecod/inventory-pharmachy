@@ -1,5 +1,6 @@
 package com.example.inventorypharmacy.service.impl;
 
+import com.example.inventorypharmacy.dto.ResumenVentaDTO;
 import com.example.inventorypharmacy.dto.VentaDTO;
 import com.example.inventorypharmacy.model.*;
 import com.example.inventorypharmacy.repository.*;
@@ -110,7 +111,7 @@ public class VentaServiceImpl implements VentaService {
     }
 
     @Override
-public List<Map<String, Object>> obtenerProductosConStockBajo(int limiteStock) {
+    public List<Map<String, Object>> obtenerProductosConStockBajo(int limiteStock) {
     // Lógica para obtener productos con stock menor al límite
     return productoRepository.findAll().stream()
             .filter(producto -> producto.getStock() < limiteStock)
@@ -122,5 +123,37 @@ public List<Map<String, Object>> obtenerProductosConStockBajo(int limiteStock) {
                 return productoMap;
             })
             .collect(Collectors.toList());
-}
+    }
+    @Override
+    public List<Venta> getVentasByCliente(Long idCliente) {
+        return ventaRepo.findAllByClienteIdCliente(idCliente);
+    }
+
+    @Override
+    public List<Venta> getVentasByUsuario(Long idUsuario) {
+        return ventaRepo.findAllByUsuarioIdUsuario(idUsuario);
+    }
+    @Override
+    public List<VentaDTO> getAllVentas() {
+        // Recuperar todas las ventas
+        List<Venta> ventas = ventaRepo.findAll();
+        return ventas.stream()
+                .map(venta -> new VentaDTO(
+                        venta.getIdVenta(),
+                        venta.getFecha(),
+                        venta.getTotal(),
+                        venta.getTipoVenta(),
+                        venta.getCliente() != null ? venta.getCliente().getIdCliente() : null, // Obtener idCliente
+                        venta.getUsuario() != null ? venta.getUsuario().getIdUsuario() : null)) // Obtener idUsuario
+                .collect(Collectors.toList());
+    }
+    @Autowired
+    public VentaServiceImpl(VentaRepository ventaRepository) {
+        this.ventaRepo = ventaRepository;
+    }
+
+    @Override
+    public List<ResumenVentaDTO> obtenerResumenVentas() {
+        return ventaRepo.obtenerResumenVentas();
+    }
 }

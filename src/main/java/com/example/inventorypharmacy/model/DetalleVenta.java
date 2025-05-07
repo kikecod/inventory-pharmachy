@@ -10,20 +10,21 @@ import lombok.*;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@IdClass(DetalleVentaId.class)
 public class DetalleVenta {
 
-    @Id
+    @EmbeddedId
+    private DetalleVentaId id;
+
     @ManyToOne
+    @MapsId("idVenta")
     @JoinColumn(name = "id_venta")
     private Venta venta;
 
-    @Id
     @ManyToOne
+    @MapsId("idProducto")
     @JoinColumn(name = "id_producto")
     private Producto producto;
 
     private Integer cantidad;
-
     private Double subtotal;
 }

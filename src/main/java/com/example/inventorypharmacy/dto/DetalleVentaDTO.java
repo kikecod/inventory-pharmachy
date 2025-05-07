@@ -12,4 +12,5 @@ public class DetalleVentaDTO {
     private Long idProducto;
     private Integer cantidad;
     private Double subtotal;
+
 }
