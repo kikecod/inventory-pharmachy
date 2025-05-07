@@ -34,6 +34,19 @@ public class ClienteServiceImpl implements ClienteService {
     public ClienteDTO guardar(ClienteDTO dto) {
         return toDTO(repo.save(toEntity(dto)));
     }
+    @Override
+    public ClienteDTO actualizar(Long id, ClienteDTO dto) {
+        Cliente cliente = repo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
+
+        cliente.setNombre(dto.getNombre());
+        cliente.setApellido(dto.getApellido());
+        cliente.setEmail(dto.getEmail());
+        cliente.setTelefono(dto.getTelefono());
+        cliente.setDireccion(dto.getDireccion());
+
+        return toDTO(repo.save(cliente));
+    }
 
     @Override
     public ClienteDTO obtenerPorId(Long id) {
@@ -44,4 +57,6 @@ public class ClienteServiceImpl implements ClienteService {
     public void eliminar(Long id) {
         repo.deleteById(id);
     }
+
+
 }

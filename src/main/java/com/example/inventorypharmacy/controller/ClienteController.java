@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@CrossOrigin(origins = "http://localhost:5173/")
+
 @RestController
 @RequestMapping("/api/clientes")
 public class ClienteController {
@@ -29,6 +31,11 @@ public class ClienteController {
     @GetMapping("/{id}")
     public ClienteDTO obtener(@PathVariable Long id) {
         return service.obtenerPorId(id);
+    }
+
+    @PutMapping("/{id}")
+    public ClienteDTO actualizar(@PathVariable Long id, @RequestBody ClienteDTO dto) {
+        return service.actualizar(id, dto);
     }
 
     @DeleteMapping("/{id}")
