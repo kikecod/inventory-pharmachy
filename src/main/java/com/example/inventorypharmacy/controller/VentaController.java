@@ -57,12 +57,12 @@ public class VentaController {
         return ResponseEntity.ok(ventaService.obtenerStockPorCategoria());
     }
 
-    @GetMapping("dashboard/ventas-totales")
+    @GetMapping("/dashboard/ventas-totales")
     public double obtenerTotalVentas() {
         return ventaService.obtenerTotalVentas();
     }
 
-    @GetMapping("dashboard/productos-stock-bajo")
+    @GetMapping("/dashboard/productos-stock-bajo")
     public ResponseEntity<?> obtenerProductosConStockBajo(@RequestParam(defaultValue = "40") int limiteStock) {
         return ResponseEntity.ok(ventaService.obtenerProductosConStockBajo(limiteStock));
     }
