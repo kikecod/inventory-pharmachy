@@ -63,7 +63,7 @@ public class SecurityConfig implements WebMvcConfigurer {
         registry.addMapping("/**")
                 .allowedOrigins("http://localhost:5173") // Cambia por la URL de tu frontend
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                .allowedHeaders("Authorization", "Content-Type")
+                .allowedHeaders("Authorization", "Content-Type", "Sucursal-ID")
                 .allowCredentials(true); // Si necesitas permitir cookies o encabezados de autenticación
     }
 }

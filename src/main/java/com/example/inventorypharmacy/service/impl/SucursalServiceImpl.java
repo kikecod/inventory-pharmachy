@@ -49,14 +49,22 @@ public class SucursalServiceImpl implements SucursalService {
 
     @Override
     public SucursalDTO guardar(SucursalDTO dto) {
-        return toDTO(repo.save(toEntity(dto)));
+        Sucursal sucursal = toEntity(dto);
+        sucursal.setFechaCreacion(java.time.LocalDate.now()); // 👈 asigna la fecha actual
+        return toDTO(repo.save(sucursal));
     }
 
     @Override
     public SucursalDTO actualizar(Long id, SucursalDTO dto) {
-        if (!repo.existsById(id)) return null;
-        dto.setIdSucursal(id);
-        return toDTO(repo.save(toEntity(dto)));
+        Sucursal existente = repo.findById(id).orElseThrow(() -> new RuntimeException("Sucursal no encontrada"));
+
+        existente.setNombre(dto.getNombre());
+        existente.setDireccion(dto.getDireccion());
+        existente.setTelefono(dto.getTelefono());
+        existente.setEmail(dto.getEmail());
+        // ❌ No se toca la fecha de creación
+
+        return toDTO(repo.save(existente));
     }
 
     @Override
