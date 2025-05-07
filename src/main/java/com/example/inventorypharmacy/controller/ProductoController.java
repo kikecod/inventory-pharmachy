@@ -3,8 +3,10 @@ package com.example.inventorypharmacy.controller;
 
 
 import com.example.inventorypharmacy.dto.ProductoDTO;
+import com.example.inventorypharmacy.dto.ProductoResponseDTO;
 import com.example.inventorypharmacy.service.ProductoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,8 +19,8 @@ public class ProductoController {
     private ProductoService productoService;
 
     @GetMapping
-    public List<ProductoDTO> listarTodos() {
-        return productoService.listarTodos();
+    public ResponseEntity<List<ProductoResponseDTO>> getProductosConDetalle() {
+        return ResponseEntity.ok(productoService.obtenerProductosConDetalle());
     }
 
     @GetMapping("/{id}")
@@ -40,4 +42,5 @@ public class ProductoController {
     public void eliminar(@PathVariable Long id) {
         productoService.eliminar(id);
     }
+
 }

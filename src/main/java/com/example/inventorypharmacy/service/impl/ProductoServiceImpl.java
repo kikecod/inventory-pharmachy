@@ -2,6 +2,7 @@ package com.example.inventorypharmacy.service.impl;
 
 
 import com.example.inventorypharmacy.dto.ProductoDTO;
+import com.example.inventorypharmacy.dto.ProductoResponseDTO;
 import com.example.inventorypharmacy.model.*;
 import com.example.inventorypharmacy.repository.*;
 import com.example.inventorypharmacy.service.ProductoService;
@@ -24,6 +25,9 @@ public class ProductoServiceImpl implements ProductoService {
 
     @Autowired
     private CategoriaRepository categoriaRepo;
+
+    @Autowired
+    private PrecioRepository precioRepo;
 
     private ProductoDTO toDTO(Producto p) {
         return new ProductoDTO(
@@ -73,5 +77,35 @@ public class ProductoServiceImpl implements ProductoService {
     @Override
     public void eliminar(Long id) {
         productoRepo.deleteById(id);
+    }
+
+
+    @Override
+    public List<ProductoResponseDTO> obtenerProductosConDetalle() {
+        List<Producto> productos = productoRepo.findAll();
+        List<ProductoResponseDTO> resultado = new ArrayList<>();
+
+        for (Producto producto : productos) {
+            Double precioActual = precioRepo
+                    .findPrecioActualByProductoId(producto.getIdProducto())
+                    .stream()
+                    .findFirst()
+                    .map(Precio::getPrecio_unitario)
+                    .orElse(null);
+
+            ProductoResponseDTO dto = new ProductoResponseDTO(
+                    producto.getIdProducto(),
+                    producto.getNombre(),
+                    producto.getDescripcion(),
+                    producto.getStock(),
+                    producto.getUnidad() != null ? producto.getUnidad().getDescripcion() : null,
+                    producto.getProveedor() != null ? producto.getProveedor().getNombre() : null,
+                    producto.getCategoria() != null ? producto.getCategoria().getNombre() : null,
+                    precioActual
+            );
+            resultado.add(dto);
+        }
+
+        return resultado;
     }
 }
