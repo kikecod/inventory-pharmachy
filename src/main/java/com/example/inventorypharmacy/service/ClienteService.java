@@ -12,4 +12,5 @@ public interface ClienteService {
     ClienteDTO actualizar(Long id, ClienteDTO dto);
     ClienteDTO obtenerPorId(Long id);
     void eliminar(Long id);
+    ClienteDTO buscarPorCi(String ci);
 }

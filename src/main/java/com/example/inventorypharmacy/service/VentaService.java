@@ -5,6 +5,7 @@ package com.example.inventorypharmacy.service;
 
 import com.example.inventorypharmacy.dto.ResumenVentaDTO;
 import com.example.inventorypharmacy.dto.VentaDTO;
+import com.example.inventorypharmacy.dto.VentaRequestDTO;
 import com.example.inventorypharmacy.model.Venta;
 
 import java.util.List;
@@ -25,4 +26,5 @@ public interface VentaService {
     List<Venta> getVentasByUsuario(Long idUsuario);
     List<VentaDTO> getAllVentas();
     List<ResumenVentaDTO> obtenerResumenVentas();
+    Long registrarVenta(VentaRequestDTO ventaDTO);
 }

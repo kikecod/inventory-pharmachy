@@ -1,7 +1,9 @@
 package com.example.inventorypharmacy.service.impl;
 
+import com.example.inventorypharmacy.dto.DetalleVentaDTO;
 import com.example.inventorypharmacy.dto.ResumenVentaDTO;
 import com.example.inventorypharmacy.dto.VentaDTO;
+import com.example.inventorypharmacy.dto.VentaRequestDTO;
 import com.example.inventorypharmacy.model.*;
 import com.example.inventorypharmacy.repository.*;
 import com.example.inventorypharmacy.service.VentaService;
@@ -26,6 +28,9 @@ public class VentaServiceImpl implements VentaService {
 
     @Autowired
     private ProductoRepository productoRepository;
+
+    @Autowired
+    private DetalleVentaRepository detalleVentaRepo;
 
     private VentaDTO toDTO(Venta v) {
         return new VentaDTO(
@@ -155,5 +160,44 @@ public class VentaServiceImpl implements VentaService {
     @Override
     public List<ResumenVentaDTO> obtenerResumenVentas() {
         return ventaRepo.obtenerResumenVentas();
+    }
+
+    @Override
+    public Long registrarVenta(VentaRequestDTO dto) {
+        // 1. Obtener cliente y usuario
+        Cliente cliente = clienteRepo.findById(dto.getIdCliente())
+                .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
+        Usuario usuario = usuarioRepo.findById(dto.getIdUsuario())
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        // 2. Crear la venta
+        Venta venta = new Venta();
+        venta.setFecha(LocalDate.now()); // 👈 Asegúrate de que esté antes de guardar
+        venta.setCliente(cliente);
+        venta.setUsuario(usuario);
+        venta.setTipoVenta(dto.getTipoVenta());
+        venta.setTotal(dto.getTotal());
+
+        Venta ventaGuardada = ventaRepo.save(venta);
+
+        // 3. Guardar los detalles
+        for (DetalleVentaDTO d : dto.getDetalle()) {
+            Producto producto = productoRepository.findById(d.getIdProducto())
+                    .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+
+            DetalleVenta detalle = new DetalleVenta();
+
+            // 👇 Seteamos ID compuesto
+            DetalleVentaId id = new DetalleVentaId(ventaGuardada.getIdVenta(), producto.getIdProducto());
+            detalle.setId(id);
+
+            detalle.setVenta(ventaGuardada);
+            detalle.setProducto(producto);
+            detalle.setCantidad(d.getCantidad());
+            detalle.setSubtotal(d.getSubtotal());
+
+            detalleVentaRepo.save(detalle);
+        }
+        return ventaGuardada.getIdVenta();
     }
 }

@@ -13,4 +13,5 @@ public interface FacturaService {
     FacturaDTO guardar(FacturaDTO dto);
     void eliminar(Long id);
     ByteArrayInputStream generarPdf(Long id);
+    ByteArrayInputStream generarFacturaPdfPorVenta(Long idVenta);
 }

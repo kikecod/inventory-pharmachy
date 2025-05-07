@@ -2,13 +2,17 @@ package com.example.inventorypharmacy.controller;
 
 import com.example.inventorypharmacy.dto.ResumenVentaDTO;
 import com.example.inventorypharmacy.dto.VentaDTO;
+import com.example.inventorypharmacy.dto.VentaRequestDTO;
 import com.example.inventorypharmacy.model.Venta;
 import com.example.inventorypharmacy.service.VentaService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+
 @CrossOrigin(origins = "http://localhost:5173/")
 @RestController
 @RequestMapping("/api/ventas")
@@ -28,8 +32,10 @@ public class VentaController {
     }
 
     @PostMapping
-    public VentaDTO guardar(@RequestBody VentaDTO dto) {
-        return ventaService.guardar(dto);
+    public ResponseEntity<Map<String, Object>> registrarVenta(@RequestBody VentaRequestDTO dto) {
+        Long idVenta = ventaService.registrarVenta(dto);
+        Map<String, Object> response = Map.of("idVenta", idVenta);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @DeleteMapping("/{id}")

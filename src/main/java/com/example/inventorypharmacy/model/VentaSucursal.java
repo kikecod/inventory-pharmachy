@@ -12,13 +12,16 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class VentaSucursal {
 
-    @Id
+    @EmbeddedId
+    private VentaSucursalId id;
+
     @ManyToOne
+    @MapsId("idVenta")
     @JoinColumn(name = "id_venta")
     private Venta venta;
 
-    @Id
     @ManyToOne
+    @MapsId("idSucursal")
     @JoinColumn(name = "id_sucursal")
     private Sucursal sucursal;
 }

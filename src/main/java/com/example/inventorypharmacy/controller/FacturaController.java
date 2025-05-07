@@ -5,10 +5,12 @@ import com.example.inventorypharmacy.service.FacturaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.List;
 @RestController
 @RequestMapping("/api/facturas")
@@ -37,7 +39,7 @@ public class FacturaController {
         facturaService.eliminar(id);
     }
 
-    @GetMapping("/{id}/pdf")
+    @GetMapping("/{id}/pdf/descargar")
     public ResponseEntity<byte[]> descargarFacturaPdf(@PathVariable Long id) {
         ByteArrayInputStream pdfStream = facturaService.generarPdf(id);
 
@@ -50,5 +52,18 @@ public class FacturaController {
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+    @GetMapping("/{idVenta}/pdf")
+    public ResponseEntity<byte[]> generarFacturaPdf(@PathVariable Long idVenta) throws IOException {
+        ByteArrayInputStream pdfStream = facturaService.generarFacturaPdfPorVenta(idVenta);
+        byte[] pdfBytes = pdfStream.readAllBytes();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "inline; filename=factura_" + idVenta + ".pdf");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdfBytes);
     }
 }

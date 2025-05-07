@@ -28,6 +28,7 @@ public class ClienteController {
         return service.guardar(dto);
     }
 
+
     @GetMapping("/{id}")
     public ClienteDTO obtener(@PathVariable Long id) {
         return service.obtenerPorId(id);
@@ -42,4 +43,9 @@ public class ClienteController {
     public void eliminar(@PathVariable Long id) {
         service.eliminar(id);
     }
+    @GetMapping("/ci/{ci}")
+    public ClienteDTO buscarPorCi(@PathVariable String ci) {
+        return service.buscarPorCi(ci);
+    }
+
 }

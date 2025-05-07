@@ -7,7 +7,9 @@ import com.example.inventorypharmacy.model.Cliente;
 import com.example.inventorypharmacy.repository.ClienteRepository;
 import com.example.inventorypharmacy.service.ClienteService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -32,13 +34,28 @@ public class ClienteServiceImpl implements ClienteService {
 
     @Override
     public ClienteDTO guardar(ClienteDTO dto) {
+        if (repo.existsByCi(dto.getCi())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El CI ya está registrado");
+        }
+        if (repo.existsByEmail(dto.getEmail())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El email ya está registrado");
+        }
         return toDTO(repo.save(toEntity(dto)));
     }
     @Override
     public ClienteDTO actualizar(Long id, ClienteDTO dto) {
         Cliente cliente = repo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente no encontrado"));
 
+        if (repo.existsByCiAndIdClienteNot(dto.getCi(), id)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El CI ya está registrado por otro cliente");
+        }
+
+        if (repo.existsByEmailAndIdClienteNot(dto.getEmail(), id)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El email ya está registrado por otro cliente");
+        }
+
+        cliente.setCi(dto.getCi());
         cliente.setNombre(dto.getNombre());
         cliente.setApellido(dto.getApellido());
         cliente.setEmail(dto.getEmail());
@@ -58,5 +75,11 @@ public class ClienteServiceImpl implements ClienteService {
         repo.deleteById(id);
     }
 
+    @Override
+    public ClienteDTO buscarPorCi(String ci) {
+        Cliente cliente = repo.findByCi(ci)
+                .orElseThrow(() -> new RuntimeException("Cliente no encontrado con CI: " + ci));
+        return toDTO(cliente);
+    }
 
 }
