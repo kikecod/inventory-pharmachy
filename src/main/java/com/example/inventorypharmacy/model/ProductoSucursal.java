@@ -1,9 +1,7 @@
 package com.example.inventorypharmacy.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name = "producto_sucursal")
@@ -12,18 +10,19 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ProductoSucursal {
 
-    @Id
+    @EmbeddedId
+    private ProductoSucursalId id;
+
     @ManyToOne
+    @MapsId("producto")
     @JoinColumn(name = "id_producto")
     private Producto producto;
 
-    @Id
     @ManyToOne
+    @MapsId("sucursal")
     @JoinColumn(name = "id_sucursal")
     private Sucursal sucursal;
 
     @Column(name = "stock")
     private int stock;
-
-
 }

@@ -3,6 +3,7 @@ package com.example.inventorypharmacy.service;
 
 import com.example.inventorypharmacy.dto.ProductoDTO;
 import com.example.inventorypharmacy.dto.ProductoResponseDTO;
+import com.example.inventorypharmacy.dto.ProductoSucursalResponseDTO;
 
 import java.util.List;
 
@@ -14,4 +15,5 @@ public interface ProductoService {
     void eliminar(Long id);
 
     List<ProductoResponseDTO> obtenerProductosConDetalle();
+    List<ProductoSucursalResponseDTO> obtenerProductosPorSucursal(Long idSucursal);
 }

@@ -61,7 +61,7 @@ public class SecurityConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:5173/") // Cambia por la URL de tu frontend
+                .allowedOrigins("http://localhost:5173") // Cambia por la URL de tu frontend
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("Authorization", "Content-Type")
                 .allowCredentials(true); // Si necesitas permitir cookies o encabezados de autenticación

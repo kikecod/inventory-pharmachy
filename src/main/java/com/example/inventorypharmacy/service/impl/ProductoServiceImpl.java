@@ -3,6 +3,7 @@ package com.example.inventorypharmacy.service.impl;
 
 import com.example.inventorypharmacy.dto.ProductoDTO;
 import com.example.inventorypharmacy.dto.ProductoResponseDTO;
+import com.example.inventorypharmacy.dto.ProductoSucursalResponseDTO;
 import com.example.inventorypharmacy.model.*;
 import com.example.inventorypharmacy.repository.*;
 import com.example.inventorypharmacy.service.ProductoService;
@@ -28,6 +29,9 @@ public class ProductoServiceImpl implements ProductoService {
 
     @Autowired
     private PrecioRepository precioRepo;
+
+    @Autowired
+    private ProductoSucursalRepository productoSucursalRepo;
 
     private ProductoDTO toDTO(Producto p) {
         return new ProductoDTO(
@@ -80,6 +84,7 @@ public class ProductoServiceImpl implements ProductoService {
     }
 
 
+
     @Override
     public List<ProductoResponseDTO> obtenerProductosConDetalle() {
         List<Producto> productos = productoRepo.findAll();
@@ -108,4 +113,30 @@ public class ProductoServiceImpl implements ProductoService {
 
         return resultado;
     }
+    public List<ProductoSucursalResponseDTO> obtenerProductosPorSucursal(Long idSucursal) {
+        List<ProductoSucursal> lista = productoSucursalRepo.findBySucursal_IdSucursal(idSucursal);
+
+        return lista.stream().map(ps -> {
+            Producto p = ps.getProducto();
+            Double precio = precioRepo
+                    .findPrecioActualByProductoId(p.getIdProducto())
+                    .stream()
+                    .findFirst()
+                    .map(precioObj -> precioObj.getPrecio_unitario())
+                    .orElse(null);
+
+            return new ProductoSucursalResponseDTO(
+                    p.getIdProducto(),
+                    p.getNombre(),
+                    p.getDescripcion(),
+                    ps.getStock(),
+                    p.getUnidad().getDescripcion(),
+                    p.getProveedor().getNombre(),
+                    p.getCategoria().getNombre(),
+                    precio,
+                    ps.getSucursal().getNombre()
+            );
+        }).toList();
+    }
+
 }

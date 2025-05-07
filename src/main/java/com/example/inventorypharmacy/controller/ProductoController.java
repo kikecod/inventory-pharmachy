@@ -4,6 +4,7 @@ package com.example.inventorypharmacy.controller;
 
 import com.example.inventorypharmacy.dto.ProductoDTO;
 import com.example.inventorypharmacy.dto.ProductoResponseDTO;
+import com.example.inventorypharmacy.dto.ProductoSucursalResponseDTO;
 import com.example.inventorypharmacy.service.ProductoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -41,6 +42,17 @@ public class ProductoController {
     @DeleteMapping("/{id}")
     public void eliminar(@PathVariable Long id) {
         productoService.eliminar(id);
+    }
+    @GetMapping("/sucursal/{idSucursal}")
+    public ResponseEntity<List<ProductoSucursalResponseDTO>> getProductosPorSucursal(@PathVariable Long idSucursal) {
+        List<ProductoSucursalResponseDTO> productos = productoService.obtenerProductosPorSucursal(idSucursal);
+        return ResponseEntity.ok(productos);
+    }
+    @GetMapping("/sucursal")
+    public ResponseEntity<List<ProductoSucursalResponseDTO>> obtenerProductosPorSucursal(
+            @RequestHeader("Sucursal-ID") Long idSucursal) {
+        List<ProductoSucursalResponseDTO> productos = productoService.obtenerProductosPorSucursal(idSucursal);
+        return ResponseEntity.ok(productos);
     }
 
 }
