@@ -1,6 +1,7 @@
 package com.example.inventorypharmacy.service.impl;
 
 
+import com.example.inventorypharmacy.dto.PrecioDTO;
 import com.example.inventorypharmacy.dto.ProductoDTO;
 import com.example.inventorypharmacy.dto.ProductoResponseDTO;
 import com.example.inventorypharmacy.dto.ProductoSucursalResponseDTO;
@@ -10,6 +11,8 @@ import com.example.inventorypharmacy.service.ProductoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+
+import java.time.LocalDate;
 import java.util.*;
 
 @Service
@@ -72,10 +75,31 @@ public class ProductoServiceImpl implements ProductoService {
 
     @Override
     public ProductoDTO actualizar(Long id, ProductoDTO dto) {
-        if (!productoRepo.existsById(id)) return null;
-        dto.setIdProducto(id);
-        Producto updated = productoRepo.save(toEntity(dto));
-        return toDTO(updated);
+        Producto existente = productoRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+
+        existente.setNombre(dto.getNombre());
+        existente.setDescripcion(dto.getDescripcion());
+        existente.setStock(dto.getStock());
+
+        if (dto.getIdUnidad() != null) {
+            existente.setUnidad(unidadRepo.findById(dto.getIdUnidad())
+                    .orElseThrow(() -> new RuntimeException("Unidad no encontrada")));
+        }
+
+        if (dto.getIdProveedor() != null) {
+            existente.setProveedor(proveedorRepo.findById(dto.getIdProveedor())
+                    .orElseThrow(() -> new RuntimeException("Proveedor no encontrado")));
+        }
+
+        if (dto.getIdCategoria() != null) {
+            existente.setCategoria(categoriaRepo.findById(dto.getIdCategoria())
+                    .orElseThrow(() -> new RuntimeException("Categoría no encontrada")));
+        }
+
+        Producto actualizado = productoRepo.save(existente);
+
+        return toDTO(actualizado);
     }
 
     @Override
@@ -137,6 +161,19 @@ public class ProductoServiceImpl implements ProductoService {
                     ps.getSucursal().getNombre()
             );
         }).toList();
+    }
+
+    @Override
+    public void actualizarPrecio(Long idProducto, PrecioDTO dto) {
+        Producto producto = productoRepo.findById(idProducto)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+
+        Precio nuevoPrecio = new Precio();
+        nuevoPrecio.setProducto(producto);
+        nuevoPrecio.setFecha_vigencia(LocalDate.now());
+        nuevoPrecio.setPrecio_unitario(dto.getPrecioUnitario());
+
+        precioRepo.save(nuevoPrecio);
     }
 
 }

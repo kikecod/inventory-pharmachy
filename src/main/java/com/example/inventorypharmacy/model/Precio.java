@@ -18,7 +18,7 @@ public class Precio {
     @JoinColumn(name = "id_producto")
     private Producto producto;
 
-    LocalDate fecha_vigencia;
+    private LocalDate fecha_vigencia;
 
-    Double precio_unitario;
+    private Double precio_unitario;
 }
