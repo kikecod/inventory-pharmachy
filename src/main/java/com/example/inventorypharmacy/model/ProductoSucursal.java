@@ -22,7 +22,4 @@ public class ProductoSucursal {
     @MapsId("sucursal")
     @JoinColumn(name = "id_sucursal")
     private Sucursal sucursal;
-
-    @Column(name = "stock")
-    private int stock;
 }

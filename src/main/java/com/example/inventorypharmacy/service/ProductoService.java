@@ -4,6 +4,7 @@ package com.example.inventorypharmacy.service;
 import com.example.inventorypharmacy.dto.PrecioDTO;
 import com.example.inventorypharmacy.dto.ProductoDTO;
 import com.example.inventorypharmacy.dto.ProductoResponseDTO;
+import com.example.inventorypharmacy.dto.ProductoSucursalRequestDTO;
 import com.example.inventorypharmacy.dto.ProductoSucursalResponseDTO;
 
 import java.util.List;
@@ -18,4 +19,5 @@ public interface ProductoService {
     List<ProductoResponseDTO> obtenerProductosConDetalle();
     List<ProductoSucursalResponseDTO> obtenerProductosPorSucursal(Long idSucursal);
     void actualizarPrecio(Long idProducto, PrecioDTO dto);
+    ProductoDTO guardarConSucursal(ProductoDTO productoDTO, Long idSucursal);
 }
