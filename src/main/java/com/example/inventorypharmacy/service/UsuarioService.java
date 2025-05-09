@@ -6,6 +6,7 @@ import com.example.inventorypharmacy.dto.UsuarioDTO;
 import com.example.inventorypharmacy.model.Usuario;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface UsuarioService {
     List<UsuarioDTO> listar();
@@ -16,4 +17,11 @@ public interface UsuarioService {
 
     UsuarioDTO actualizarPerfil(UsuarioDTO usuarioDTO, String email);
     Usuario crearUsuario(Usuario usuario);
+    UsuarioDTO actualizar(Long id, UsuarioDTO dto);
+    void asignarRol(Long idUsuario, String nombreRol);
+    void cambiarPassword(Long idUsuario, String nuevaPassword);
+    boolean cambiarPasswordAutenticado(String email, String passwordActual, String nuevaPassword);
+    Optional<UsuarioDTO> buscarPorEmail(String email);
+
+    List<UsuarioDTO> listarPorRol(String nombreRol);
 }
