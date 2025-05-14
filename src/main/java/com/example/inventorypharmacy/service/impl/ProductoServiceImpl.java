@@ -1,8 +1,9 @@
 package com.example.inventorypharmacy.service.impl;
 
-
+import com.example.inventorypharmacy.dto.PrecioDTO;
 import com.example.inventorypharmacy.dto.ProductoDTO;
 import com.example.inventorypharmacy.dto.ProductoResponseDTO;
+import com.example.inventorypharmacy.dto.ProductoSucursalRequestDTO;
 import com.example.inventorypharmacy.dto.ProductoSucursalResponseDTO;
 import com.example.inventorypharmacy.model.*;
 import com.example.inventorypharmacy.repository.*;
@@ -10,6 +11,7 @@ import com.example.inventorypharmacy.service.ProductoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.*;
 
 @Service
@@ -33,13 +35,15 @@ public class ProductoServiceImpl implements ProductoService {
     @Autowired
     private ProductoSucursalRepository productoSucursalRepo;
 
+    @Autowired
+    private SucursalRepository sucursalRepository;
+
     private ProductoDTO toDTO(Producto p) {
         return new ProductoDTO(
                 p.getIdProducto(), p.getNombre(), p.getDescripcion(), p.getStock(),
                 p.getUnidad().getIdUnidad(),
                 p.getProveedor().getIdProveedor(),
-                p.getCategoria().getIdCategoria()
-        );
+                p.getCategoria().getIdCategoria());
     }
 
     private Producto toEntity(ProductoDTO dto) {
@@ -72,18 +76,37 @@ public class ProductoServiceImpl implements ProductoService {
 
     @Override
     public ProductoDTO actualizar(Long id, ProductoDTO dto) {
-        if (!productoRepo.existsById(id)) return null;
-        dto.setIdProducto(id);
-        Producto updated = productoRepo.save(toEntity(dto));
-        return toDTO(updated);
+        Producto existente = productoRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+
+        existente.setNombre(dto.getNombre());
+        existente.setDescripcion(dto.getDescripcion());
+        existente.setStock(dto.getStock());
+
+        if (dto.getIdUnidad() != null) {
+            existente.setUnidad(unidadRepo.findById(dto.getIdUnidad())
+                    .orElseThrow(() -> new RuntimeException("Unidad no encontrada")));
+        }
+
+        if (dto.getIdProveedor() != null) {
+            existente.setProveedor(proveedorRepo.findById(dto.getIdProveedor())
+                    .orElseThrow(() -> new RuntimeException("Proveedor no encontrado")));
+        }
+
+        if (dto.getIdCategoria() != null) {
+            existente.setCategoria(categoriaRepo.findById(dto.getIdCategoria())
+                    .orElseThrow(() -> new RuntimeException("Categoría no encontrada")));
+        }
+
+        Producto actualizado = productoRepo.save(existente);
+
+        return toDTO(actualizado);
     }
 
     @Override
     public void eliminar(Long id) {
         productoRepo.deleteById(id);
     }
-
-
 
     @Override
     public List<ProductoResponseDTO> obtenerProductosConDetalle() {
@@ -106,13 +129,13 @@ public class ProductoServiceImpl implements ProductoService {
                     producto.getUnidad() != null ? producto.getUnidad().getDescripcion() : null,
                     producto.getProveedor() != null ? producto.getProveedor().getNombre() : null,
                     producto.getCategoria() != null ? producto.getCategoria().getNombre() : null,
-                    precioActual
-            );
+                    precioActual);
             resultado.add(dto);
         }
 
         return resultado;
     }
+
     public List<ProductoSucursalResponseDTO> obtenerProductosPorSucursal(Long idSucursal) {
         List<ProductoSucursal> lista = productoSucursalRepo.findBySucursal_IdSucursal(idSucursal);
 
@@ -129,14 +152,44 @@ public class ProductoServiceImpl implements ProductoService {
                     p.getIdProducto(),
                     p.getNombre(),
                     p.getDescripcion(),
-                    ps.getStock(),
+                    p.getStock(),
                     p.getUnidad().getDescripcion(),
                     p.getProveedor().getNombre(),
                     p.getCategoria().getNombre(),
                     precio,
-                    ps.getSucursal().getNombre()
-            );
+                    ps.getSucursal().getNombre());
         }).toList();
+    }
+
+    @Override
+    public void actualizarPrecio(Long idProducto, PrecioDTO dto) {
+        Producto producto = productoRepo.findById(idProducto)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+
+        Precio nuevoPrecio = new Precio();
+        nuevoPrecio.setProducto(producto);
+        nuevoPrecio.setFecha_vigencia(LocalDate.now());
+        nuevoPrecio.setPrecio_unitario(dto.getPrecioUnitario());
+
+        precioRepo.save(nuevoPrecio);
+    }
+
+    public ProductoDTO guardarConSucursal(ProductoDTO dto, Long idSucursal) {
+
+        Sucursal sucursal = sucursalRepository.findById(idSucursal)
+                .orElseThrow(() -> new RuntimeException("Sucursal con ID " + idSucursal + " no encontrada"));
+
+        Producto saved = productoRepo.save(toEntity(dto));
+
+        ProductoSucursalId productoSucursalId = new ProductoSucursalId(saved.getIdProducto(), idSucursal);
+
+        ProductoSucursal productoSucursal = new ProductoSucursal();
+        productoSucursal.setId(productoSucursalId);
+        productoSucursal.setProducto(saved);
+        productoSucursal.setSucursal(sucursal);
+
+        productoSucursalRepo.save(productoSucursal);
+        return toDTO(saved);
     }
 
 }
