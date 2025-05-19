@@ -1,10 +1,14 @@
-FROM maven:17-eclipse-temurin AS build
+FROM eclipse-temurin:21-jdk AS builder
+
 WORKDIR /app
 COPY . .
-RUN mvn clean package -DskipTests
 
-FROM eclipse-temurin:17-jdk
+RUN ./mvnw clean package -DskipTests
+
+FROM eclipse-temurin:21-jre
+
 WORKDIR /app
-COPY --from=build /app/target/*.jar app.jar
+
+COPY --from=builder /app/target/*.jar app.jar
+
 EXPOSE 8082
-ENTRYPOINT ["java", "-jar", "app.jar"]
