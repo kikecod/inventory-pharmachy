@@ -7,12 +7,26 @@ import com.example.inventorypharmacy.dto.VentaRequestDTO;
 import com.example.inventorypharmacy.model.*;
 import com.example.inventorypharmacy.repository.*;
 import com.example.inventorypharmacy.service.VentaService;
+import com.lowagie.text.DocumentException;
+import com.lowagie.text.Paragraph;
+import com.lowagie.text.Phrase;
+import com.lowagie.text.pdf.PdfPCell;
+import com.lowagie.text.pdf.PdfPTable;
+import com.lowagie.text.pdf.PdfWriter;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.lowagie.text.Document;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class VentaServiceImpl implements VentaService {
@@ -199,5 +213,74 @@ public class VentaServiceImpl implements VentaService {
             detalleVentaRepo.save(detalle);
         }
         return ventaGuardada.getIdVenta();
+    }
+
+    @Override
+    public ByteArrayInputStream generarReporteCSV(LocalDate inicio, LocalDate fin) {
+        List<Venta> ventas = ventaRepo.findByFechaBetween(inicio, fin);
+
+        final CSVFormat format = CSVFormat.DEFAULT.withHeader("ID", "Fecha", "Cliente", "Tipo Venta", "Total");
+
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream();
+             CSVPrinter printer = new CSVPrinter(new PrintWriter(out), format)) {
+
+            for (Venta v : ventas) {
+                printer.printRecord(
+                        v.getIdVenta(),
+                        v.getFecha(),
+                        v.getCliente() != null ? v.getCliente().getNombre() : "Sin cliente",
+                        v.getTipoVenta(),
+                        v.getTotal()
+                );
+            }
+            printer.flush();
+            return new ByteArrayInputStream(out.toByteArray());
+
+        } catch (IOException e) {
+            throw new RuntimeException("Error al generar CSV", e);
+        }
+    }
+    @Override
+    public ByteArrayInputStream generarReportePDF(LocalDate inicio, LocalDate fin) {
+        List<Venta> ventas = ventaRepo.findByFechaBetween(inicio, fin);
+        Document document = new Document();
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+        try {
+            PdfWriter.getInstance(document, out);
+            document.open();
+
+            document.add(new Paragraph("REPORTE DE VENTAS"));
+            document.add(new Paragraph("Desde: " + inicio + "   Hasta: " + fin));
+            document.add(new Paragraph(" ")); // Espacio
+
+            PdfPTable table = new PdfPTable(5);
+            table.setWidthPercentage(100);
+
+            // Encabezados
+            Stream.of("ID", "Fecha", "Cliente", "Tipo Venta", "Total")
+                    .forEach(header -> {
+                        PdfPCell cell = new PdfPCell();
+                        cell.setPhrase(new Phrase(header));
+                        table.addCell(cell);
+                    });
+
+            // Datos
+            for (Venta v : ventas) {
+                table.addCell(String.valueOf(v.getIdVenta()));
+                table.addCell(v.getFecha().toString());
+                table.addCell(v.getCliente() != null ? v.getCliente().getNombre() : "Sin cliente");
+                table.addCell(v.getTipoVenta());
+                table.addCell(String.format("%.2f", v.getTotal()));
+            }
+
+            document.add(table);
+            document.close();
+
+        } catch (DocumentException e) {
+            throw new RuntimeException("Error al generar PDF", e);
+        }
+
+        return new ByteArrayInputStream(out.toByteArray());
     }
 }
