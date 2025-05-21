@@ -16,7 +16,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/proveedores")
-@CrossOrigin(origins = "http://localhost:5173/")
+@CrossOrigin(origins = "https://inventory-pharmacy.vercel.app")
 public class ProveedorController {
 
     @Autowired

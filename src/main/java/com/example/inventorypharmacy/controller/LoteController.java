@@ -12,7 +12,7 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api/inventario")
-@CrossOrigin(origins = "http://localhost:5173/") // ajusta si usas otro frontend
+@CrossOrigin(origins = "https://inventory-pharmacy.vercel.app") // ajusta si usas otro frontend
 public class LoteController {
 
     @Autowired

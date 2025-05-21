@@ -4,7 +4,7 @@ import com.example.inventorypharmacy.dto.*;
 import com.example.inventorypharmacy.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-@CrossOrigin(origins = "http://localhost:5173/")
+@CrossOrigin(origins = "https://inventory-pharmacy.vercel.app")
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
