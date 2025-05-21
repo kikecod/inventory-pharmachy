@@ -1,15 +1,21 @@
 package com.example.inventorypharmacy.controller;
 
+import com.example.inventorypharmacy.dto.ReporteRequestDTO;
 import com.example.inventorypharmacy.dto.ResumenVentaDTO;
 import com.example.inventorypharmacy.dto.VentaDTO;
 import com.example.inventorypharmacy.dto.VentaRequestDTO;
 import com.example.inventorypharmacy.model.Venta;
 import com.example.inventorypharmacy.service.VentaService;
+import org.springframework.core.io.Resource; // ✅ Correcto para usar con ResponseEntity<Resource>
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.ByteArrayInputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -97,5 +103,23 @@ public class VentaController {
     @GetMapping("/resumen")
     public ResponseEntity<List<ResumenVentaDTO>> obtenerResumenVentas() {
         return ResponseEntity.ok(ventaService.obtenerResumenVentas());
+    }
+    @PostMapping("/reporte")
+    public ResponseEntity<Resource> generarReporte(@RequestBody ReporteRequestDTO request) {
+        ByteArrayInputStream reporte;
+
+        if (request.getFormato().equalsIgnoreCase("pdf")) {
+            reporte = ventaService.generarReportePDF(request.getFechaInicio(), request.getFechaFin());
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=ventas.pdf")
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .body(new InputStreamResource(reporte));
+        } else {
+            reporte = ventaService.generarReporteCSV(request.getFechaInicio(), request.getFechaFin());
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=ventas.csv")
+                    .contentType(MediaType.parseMediaType("text/csv"))
+                    .body(new InputStreamResource(reporte));
+        }
     }
 }

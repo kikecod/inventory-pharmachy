@@ -8,6 +8,8 @@ import com.example.inventorypharmacy.dto.VentaDTO;
 import com.example.inventorypharmacy.dto.VentaRequestDTO;
 import com.example.inventorypharmacy.model.Venta;
 
+import java.io.ByteArrayInputStream;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -27,4 +29,6 @@ public interface VentaService {
     List<VentaDTO> getAllVentas();
     List<ResumenVentaDTO> obtenerResumenVentas();
     Long registrarVenta(VentaRequestDTO ventaDTO);
+    ByteArrayInputStream generarReportePDF(LocalDate inicio, LocalDate fin);
+    ByteArrayInputStream generarReporteCSV(LocalDate inicio, LocalDate fin);
 }

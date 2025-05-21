@@ -7,6 +7,7 @@ import com.example.inventorypharmacy.model.Venta;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface VentaRepository extends JpaRepository<Venta, Long> {
@@ -29,4 +30,5 @@ public interface VentaRepository extends JpaRepository<Venta, Long> {
     GROUP BY v.idVenta, c.nombre, c.apellido, v.fecha, v.tipoVenta, v.total
     """)
     List<ResumenVentaDTO> obtenerResumenVentas();
+    List<Venta> findByFechaBetween(LocalDate inicio, LocalDate fin);
 }
